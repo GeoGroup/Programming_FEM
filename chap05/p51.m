@@ -1,6 +1,6 @@
 clear;clc;
-addpath ../geom
-addpath ../main
+addpath ../library/geom
+addpath ../library/main
 penalty=1e20;
 ndim=2;nodof=2;
 global nxe nye nze;
@@ -20,9 +20,18 @@ nxe=tmp(1);
 nye=tmp(2);
 nip=tmp(3);
 np_types=tmp(4);
+prop=zeros(2,np_types);
+for i=1:np_types
+    tprop=sscanf(fgetl(fid),'%f %f');
+    prop(:,i)=tprop';
+end
 
-prop=sscanf(fgetl(fid),'%f %f');
-
+if np_types>1
+    str=fgetl(fid);
+    etype=str2num(cell2mat(split(str,' ')));
+% else
+%     etype=ones(nxe*nye,1);
+end
 str='x_coords=sscanf(fgetl(fid),''';
 for i=1:nxe
     str=[str,'%f '];
@@ -66,6 +75,11 @@ if strcmp(type_2d,'axisymmetric')
     nst=4;
 end
 [ nels,nn ] = mesh_size( element,nod );
+if np_types==1
+    etype=ones(nels,1);    
+end
+
+
 nf2=ones(nodof,nn);
 for i=1:nr
     nf2(:,nf(i))=[nf(i,2);nf(i,3)];
@@ -87,6 +101,9 @@ for iel=1:nels
     g_g(:,iel)=g ;
     kdiag = fkdiag(kdiag, g);
 end
+
+
+
 % Mesh wirte into ps 
 % 暂时不要，需要的话后面可以添加
 for i=2:neq
@@ -102,7 +119,7 @@ fprintf(fid,'%s \n',str);
 ih=nst;%ih=3 (plane strain)
 %ih=4 (axisymmetry or plane strain elastoplasticity) 
 % ih=6(three dimensions)
-etype=ones(nels,1);
+% etype=ones(nels,1);
 gc=1;
 kv=zeros(kdiag(neq),1);
 for iel=1:nels
@@ -122,9 +139,9 @@ for iel=1:nels
         deriv=jac*der;
         bee=beemat( deriv,ih );
         if strcmp(type_2d,'axisymmetric')
-            gc=fun*coord;
+            gc=fun'*coord;
 %             t=1:2:ndof-1;
-            bee(4,1:2:ndof-1)=fun/gc(1);
+            bee(4,1:2:ndof-1)=fun'/gc(1);
         end
         km=km+bee'*dee*bee*Det*weights(i)*gc(1);
     end
