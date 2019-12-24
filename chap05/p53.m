@@ -1,6 +1,6 @@
 clear;clc;
-addpath ../geom
-addpath ../main
+addpath ../library/geom
+addpath ../library/main
 penalty=1e20;
 ndim=3;nodof=3;
 global nxe nye nze;

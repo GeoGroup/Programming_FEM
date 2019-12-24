@@ -4,6 +4,7 @@ addpath ../library/main
 penalty=1e20;
 ndim=2;nodof=2;
 % global nxe nye nze;
+element='quadrilateral';
 
 [filename, pathname] = uigetfile( ...
        {'*.dat';'*.txt';'*.*'}, ...
@@ -11,11 +12,12 @@ ndim=2;nodof=2;
 name=[pathname,filename];
 %     [type_2d,element,nod,dir,nxe,nye,nip
 fid=fopen(name,'rt');
-type_2d=fgetl(fid);type_2d([1,length(type_2d)])=[];
-element=fgetl(fid);element([1,length(element)])=[];
-nod=sscanf(fgetl(fid),'%d');
-dir=fgetl(fid);dir([1,length(dir)])=[];
-tmp=sscanf(fgetl(fid),'%d %d %d %d');
+% type_2d=fgetl(fid);type_2d([1,length(type_2d)])=[];
+% element=fgetl(fid);element([1,length(element)])=[];
+% nod=sscanf(fgetl(fid),'%d');
+nod=8;nodof=3; %nst=6;
+% dir=fgetl(fid);dir([1,length(dir)])=[];
+tmp=sscanf(fgetl(fid),'%d %d');
 nxe=tmp(1);
 nye=tmp(2);
 nip=tmp(3);
@@ -74,7 +76,7 @@ nst=3; %The row number of B Matrix
 if strcmp(type_2d,'axisymmetric')
     nst=4;
 end
-[ nels,nn ] = mesh_size( element,nod,nxe,nye );
+[ nels,nn ] = mesh_size( element,nod );
 if np_types==1
     etype=ones(nels,1);    
 end
