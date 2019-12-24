@@ -208,6 +208,7 @@ for iel=1:nels
          jac=inv(jac);
          deriv=jac*der;
         [bee,radius] = bmat_nonaxi(coord,deriv,fun,iflag,lth);
+        km=km+bee'*dee*bee*Det*weights(i)*radius;
         strain=bee*eld;
         sigma=dee*(bee*eld);
         fprintf(fid,'%d %10.8f %10.8f %10.8f %10.8f %10.8f \n',iel,gc(1),gc(2),sigma(1),sigma(2),sigma(3));
