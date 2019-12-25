@@ -232,40 +232,42 @@ for i=1:nn
     fprintf(fid,'\n');
 end
 
-% % !-----------------------recover stresses at nip integrating points--------
-% nip=1; %积分点数量改为1 单元应力
-% [points, weights]= sample(element,nip );
-% fprintf(fid,'The integration point stresses are:\n');
-% fprintf(fid,'Element x-coord     y-coord    sig_x   sig_y   tau_xy\n');
-% for iel=1:nels
-%      dee=deemat(prop(1,etype(iel)),prop(2,etype(iel)),ih);
-%      num=g_num(:,iel);
-%      coord=g_coord(:,num)';
-%      g=g_g(:,iel);
-%      eld=zeros(length(g),1);
-%      for i=1:length(g)
-%          if g(i)==0
-%              eld(i)=0;
-%          else
-%              eld(i)=loads(g(i));
-%          end
-%      end
-%      for i=1:nip
-%          fun=shape_fun(points,i,ndim,nod);
-%          der=shape_der(points,i,ndim,nod);
-%          gc=fun'*coord; %高斯点坐标
-%          jac=der*coord;
-%          jac=inv(jac);
-%          deriv=jac*der;
-%          bee=beemat( deriv,ih );
-%         if strcmp(type_2d,'axisymmetric')
-%             gc=fun'*coord;
-% %             t=1:2:ndof-1;
-%             bee(4,1:2:ndof-1)=fun/gc(1);
-%         end
-%         strain=bee*eld;
-%         sigma=dee*(bee*eld);
-%         fprintf(fid,'%d %10.8f %10.8f %10.8f %10.8f %10.8f \n',iel,gc(1),gc(2),sigma(1),sigma(2),sigma(3));
-%      end
-% end
-% fclose(fid);
+% !-----------------------recover stresses at nip integrating points--------
+nip=1; %积分点数量改为1 单元应力
+[points, weights]= sample(element,nip );
+fprintf(fid,'The integration point stresses are:\n');
+fprintf(fid,'Element x-coord     y-coord    sig_x   sig_y   tau_xy\n');
+for iel=1:nels
+     dee=deemat(prop(1,etype(iel)),prop(2,etype(iel)),ih);
+     num=g_num(:,iel);
+     coord=g_coord(:,num)';
+     g=g_g(:,iel);
+     eld=zeros(length(g),1);
+     for i=1:length(g)
+         if g(i)==0
+             eld(i)=0;
+         else
+             eld(i)=loads(g(i));
+         end
+     end
+     for i=1:nip
+         fun=shape_fun(points,i,ndim,nod);
+         der=shape_der(points,i,ndim,nod);
+         gc=fun'*coord; %高斯点坐标
+         jac=der*coord;
+         jac=inv(jac);
+         deriv=jac*der;
+         bee=beemat( deriv,ih );
+        if strcmp(type_2d,'axisymmetric')
+            gc=fun'*coord;
+%             t=1:2:ndof-1;
+            bee(4,1:2:ndof-1)=fun/gc(1);
+        end
+        gtemp=fun'*dtel;
+        teps(1:2)=gtemp*[prop(3,etype(iel)),prop(4,etype(iel))];
+        eps=bee*eld-teps;
+        sigma=dee*(bee*eld);
+        fprintf(fid,'%d %10.8f %10.8f %10.8f %10.8f %10.8f \n',iel,gc(1),gc(2),sigma(1),sigma(2),sigma(3));
+     end
+end
+fclose(fid);
